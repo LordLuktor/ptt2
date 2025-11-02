@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  ptt-app:
+    image: ptt-app:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - traefik-public
+    environment:
+      # Expo environment variables
+      - EXPO_PUBLIC_SUPABASE_URL=${EXPO_PUBLIC_SUPABASE_URL}
+      - EXPO_PUBLIC_SUPABASE_ANON_KEY=${EXPO_PUBLIC_SUPABASE_ANON_KEY}
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik-public"
+
+        # HTTP Router
+        - "traefik.http.routers.ptt-app.rule=Host(`ptt.steinmetz.ltd`)"
+        - "traefik.http.routers.ptt-app.entrypoints=web,websecure"
+        - "traefik.http.routers.ptt-app.tls=true"
+        - "traefik.http.routers.ptt-app.tls.certresolver=letsencrypt"
+
+        # Service (port)
+        - "traefik.http.services.ptt-app.loadbalancer.server.port=80"
+
+        # Health check
+        - "traefik.http.services.ptt-app.loadbalancer.healthcheck.path=/health"
+        - "traefik.http.services.ptt-app.loadbalancer.healthcheck.interval=30s"
+
+        # Optional: Redirect www to non-www (if needed)
+        # - "traefik.http.middlewares.ptt-www-redirect.redirectregex.regex=^https://www.ptt.steinmetz.ltd/(.*)"
+        # - "traefik.http.middlewares.ptt-www-redirect.redirectregex.replacement=https://ptt.steinmetz.ltd/$${1}"
+        # - "traefik.http.routers.ptt-app.middlewares=ptt-www-redirect"
+
+        # Security headers middleware
+        - "traefik.http.middlewares.ptt-security-headers.headers.framedeny=true"
+        - "traefik.http.middlewares.ptt-security-headers.headers.sslredirect=true"
+        - "traefik.http.middlewares.ptt-security-headers.headers.stsincludesubdomains=true"
+        - "traefik.http.middlewares.ptt-security-headers.headers.stspreload=true"
+        - "traefik.http.middlewares.ptt-security-headers.headers.stsseconds=31536000"
+        - "traefik.http.routers.ptt-app.middlewares=ptt-security-headers"
+
+networks:
+  traefik-public:
+    external: true
