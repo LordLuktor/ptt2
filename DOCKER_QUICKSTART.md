@@ -6,6 +6,26 @@
 2. Traefik running on `traefik-public` network
 3. `.env` file with Supabase credentials
 
+## Web Build Status
+
+✅ **Web build is tested and working!**
+- Build size: ~3.2MB JavaScript bundle
+- Platform: React Native Web with Expo Router
+- Server: Nginx serving static files
+- Output: `dist/` directory
+
+### Test Build Locally
+
+```bash
+# Test the web build
+./test-build.sh
+
+# Serve locally to test
+npx serve dist
+# or
+python3 -m http.server 8000 --directory dist
+```
+
 ## Quick Deploy
 
 ### 1. Create `.env` file

@@ -38,17 +38,16 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "splash": {
+        "image": "./assets/images/favicon.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#1a1a1a"
+      }
     },
     "plugins": [
       "expo-router",
-      "expo-font",
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "PTT System needs access to your location to track your position for supervisor and dispatcher monitoring."
-        }
-      ]
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
